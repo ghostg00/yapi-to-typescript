@@ -243,7 +243,7 @@ export class Generator {
           interfaceInfo.req_query.map<PropDefinition>(item => ({
             name: item.name,
             required: item.required === Required.true,
-            type: 'string',
+            type: ['string','number'],
             comment: item.desc,
           })),
         )
