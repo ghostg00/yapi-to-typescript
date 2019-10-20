@@ -313,6 +313,16 @@ export class Generator {
     switch (interfaceInfo.res_body_type) {
       case ResponseBodyType.json:
         if (interfaceInfo.res_body) {
+          let json = JSON.parse(interfaceInfo.res_body);
+          let type = json.properties.data.type;
+          if (type === "array") {
+            const required = [];
+            for (const key in json.properties.data.items.properties) {
+              required.push(key);
+            }
+            json.properties.data.items.required = required;
+          }
+          interfaceInfo.res_body = JSON.stringify(json);
           jsonSchema = interfaceInfo.res_body_is_json_schema
             ? jsonSchemaStringToJsonSchema(interfaceInfo.res_body)
             : mockjsTemplateToJsonSchema(JSON5.parse(interfaceInfo.res_body))
