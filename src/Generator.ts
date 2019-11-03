@@ -314,29 +314,31 @@ export class Generator {
       case ResponseBodyType.json:
         if (interfaceInfo.res_body) {
           let json = JSON.parse(interfaceInfo.res_body);
-          let type = json.properties.data.type;
-          if (type === "array") {
-            const required = [];
-            for (const key in json.properties.data.items.properties) {
-              required.push(key);
-            }
-            json.properties.data.items.required = required;
-          }
-          if (type === "object") {
-            if (json.properties.data.properties && json.properties.data.properties.content && json.properties.data.properties.content.type === 'array') {
+          if(json.properties.data){
+            let type = json.properties.data.type;
+            if (type === "array") {
               const required = [];
-              for (const key in json.properties.data.properties.content.items.properties) {
+              for (const key in json.properties.data.items.properties) {
                 required.push(key);
               }
-              json.properties.data.properties.content.items.required = required;
+              json.properties.data.items.required = required;
             }
-            const required = [];
-            for (const key in json.properties.data.properties) {
-              required.push(key);
+            if (type === "object") {
+              if (json.properties.data.properties && json.properties.data.properties.content && json.properties.data.properties.content.type === 'array') {
+                const required = [];
+                for (const key in json.properties.data.properties.content.items.properties) {
+                  required.push(key);
+                }
+                json.properties.data.properties.content.items.required = required;
+              }
+              const required = [];
+              for (const key in json.properties.data.properties) {
+                required.push(key);
+              }
+              json.properties.data.required = required;
             }
-            json.properties.data.required = required;
+            interfaceInfo.res_body = JSON.stringify(json);
           }
-          interfaceInfo.res_body = JSON.stringify(json);
           jsonSchema = interfaceInfo.res_body_is_json_schema
             ? jsonSchemaStringToJsonSchema(interfaceInfo.res_body)
             : mockjsTemplateToJsonSchema(JSON5.parse(interfaceInfo.res_body))
