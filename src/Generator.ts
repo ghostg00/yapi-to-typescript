@@ -247,7 +247,9 @@ export class Generator {
             comment: item.desc,
           })),
         )
-        jsonSchema.additionalProperties = true;
+        if (Object.keys(jsonSchema.properties as {}).length > 0) {
+          jsonSchema.additionalProperties = true;
+        }
         break
       default:
         switch (interfaceInfo.req_body_type) {
