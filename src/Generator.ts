@@ -317,7 +317,7 @@ export class Generator {
       case ResponseBodyType.json:
         if (interfaceInfo.res_body) {
           let json = JSON.parse(interfaceInfo.res_body);
-          if(json.properties.data){
+          if(json.properties && json.properties.data){
             let type = json.properties.data.type;
             if (type === "array") {
               const required = [];
