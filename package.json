@@ -1,6 +1,6 @@
 {
   "name": "yapi-to-typescript",
-  "version": "1.18.1",
+  "version": "1.19.2",
   "description": "根据 YApi 的接口定义生成 TypeScript 的接口类型及其请求函数代码。",
   "main": "client/index.js",
   "module": "client/index.mjs",
@@ -92,11 +92,12 @@
   },
   "dependencies": {
     "@types/react": "^16.9.2",
+    "@vtils/date": "^2.55.0",
     "change-case": "^3.0.2",
     "consola": "^2.3.0",
     "fs-extra": "^7.0.1",
     "json-schema-generator": "^2.0.6",
-    "json-schema-to-typescript": "^6.1.0",
+    "json-schema-to-typescript": "^8.0.0",
     "json-ts": "^1.6.4",
     "json5": "^2.1.0",
     "mockjs": "^1.0.1-beta3",
@@ -106,6 +107,6 @@
     "request-promise-native": "^1.0.5",
     "ts-node": "^8.0.2",
     "tslib": "^1.9.3",
-    "vtils": "^2.23.0"
+    "vtils": "^2.55.0"
   }
 }
