@@ -245,34 +245,25 @@ export interface ReactHooksConfig {
   /**
    * 是否开启该项功能。
    */
-  enable: boolean,
+  enabled: boolean,
 
   /**
-   * 从何处引入 useState、useEffect 等 Hooks。
+   * 请求 Hook 函数制造者文件路径。
    *
-   * @default 'react'
+   * @default 与 `outputFilePath` 同级目录下的 `makeRequestHook.ts` 文件
+   * @example 'src/api/makeRequestHook.ts'
    */
-  pragma?: string,
+  requestHookMakerFilePath?: string,
 
   /**
-   * 获取自动触发 API 的 Hook 的名称。
+   * 获取请求 Hook 的名称。
    *
-   * @default `useAutoApi${changeCase.pascalCase(requestFunctionName)}`
+   * @default `use${changeCase.pascalCase(requestFunctionName)}`
    * @param interfaceInfo 接口信息
    * @param changeCase 常用的大小写转换函数集合对象
-   * @returns Hook 的名称
+   * @returns 请求 Hook 的名称
    */
-  getAutoApiHookName?(interfaceInfo: ExtendedInterface, changeCase: ChangeCase): string,
-
-  /**
-   * 获取手动触发 API 的 Hook 的名称。
-   *
-   * @default `useManualApi${changeCase.pascalCase(requestFunctionName)}`
-   * @param interfaceInfo 接口信息
-   * @param changeCase 常用的大小写转换函数集合对象
-   * @returns Hook 的名称
-   */
-  getManualApiHookName?(interfaceInfo: ExtendedInterface, changeCase: ChangeCase): string,
+  getRequestHookName?(interfaceInfo: ExtendedInterface, changeCase: ChangeCase): string,
 }
 
 /**
@@ -465,6 +456,7 @@ export interface RequestConfig<
   Path extends string = any,
   DataKey extends string | undefined = any,
   ParamName extends string = any,
+  RequestDataOptional extends boolean = any,
 > {
   /** 接口 Mock 地址，结尾无 `/` */
   mockUrl: MockUrl,
@@ -484,6 +476,8 @@ export interface RequestConfig<
   dataKey: DataKey,
   /** 路径参数的名称列表 */
   paramNames: ParamName[],
+  /** 请求数据是否可选 */
+  requestDataOptional: RequestDataOptional,
 }
 
 /**
@@ -492,19 +486,14 @@ export interface RequestConfig<
 export interface RequestFunctionParams extends RequestConfig {
   /** 请求数据，不含文件数据 */
   data: any,
+  /** 是否有文件数据 */
+  hasFileData: boolean,
   /** 请求文件数据 */
   fileData: Record<string, any>,
 }
 
-/**
- * 请求函数。
- *
- * 发起请求获得响应结果后应根据 `responseBodyType` 和 `dataKey` 对结果进行处理，并将处理后的数据返回。
- */
-export type RequestFunction = (
-  /** 参数 */
-  params: RequestFunctionParams,
-) => Promise<any>
+/** 请求函数的额外参数 */
+export type RequestFunctionRestArgs<T extends Function> = T extends (payload: any, ...args: infer R) => any ? R : never
 
 /** 属性定义 */
 export interface PropDefinition {

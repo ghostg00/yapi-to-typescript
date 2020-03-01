@@ -2,6 +2,83 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.0.2"></a>
+## [3.0.2](https://github.com/fjc0k/yapi-to-typescript/compare/v3.0.1...v3.0.2) (2020-02-22)
+
+
+### Bug Fixes
+
+* RequestConfig 中应指定 RequestDataOptional ([5f946ae](https://github.com/fjc0k/yapi-to-typescript/commit/5f946ae))
+
+
+
+<a name="3.0.1"></a>
+## [3.0.1](https://github.com/fjc0k/yapi-to-typescript/compare/v3.0.0...v3.0.1) (2020-02-20)
+
+
+### Bug Fixes
+
+* 排除 src/api ([30608c0](https://github.com/fjc0k/yapi-to-typescript/commit/30608c0))
+
+
+
+<a name="3.0.0"></a>
+# [3.0.0](https://github.com/fjc0k/yapi-to-typescript/compare/v2.0.2...v3.0.0) (2020-02-20)
+
+
+### Bug Fixes
+
+* 仅在 React Hooks 启用时生成相关代码 ([7736b7b](https://github.com/fjc0k/yapi-to-typescript/commit/7736b7b))
+
+
+### Features
+
+* 重写 React Hooks 实现 ([4ba4f15](https://github.com/fjc0k/yapi-to-typescript/commit/4ba4f15))
+* 重构 ([91a6fc3](https://github.com/fjc0k/yapi-to-typescript/commit/91a6fc3))
+
+
+
+<a name="2.0.2"></a>
+## [2.0.2](https://github.com/fjc0k/yapi-to-typescript/compare/v2.0.1...v2.0.2) (2020-02-11)
+
+
+### Bug Fixes
+
+* 忽略 JSONSchema 数组的长度限制 ([#20](https://github.com/fjc0k/yapi-to-typescript/issues/20)) ([096a72b](https://github.com/fjc0k/yapi-to-typescript/commit/096a72b))
+
+
+
+<a name="2.0.1"></a>
+## [2.0.1](https://github.com/fjc0k/yapi-to-typescript/compare/v2.0.0...v2.0.1) (2020-01-13)
+
+
+
+<a name="2.0.0"></a>
+# [2.0.0](https://github.com/fjc0k/yapi-to-typescript/compare/v1.20.0...v2.0.0) (2020-01-12)
+
+
+### Features
+
+* 接口请求函数支持设置选项 ([4a23350](https://github.com/fjc0k/yapi-to-typescript/commit/4a23350))
+
+
+
+<a name="1.20.0"></a>
+# [1.20.0](https://github.com/fjc0k/yapi-to-typescript/compare/v1.19.2...v1.20.0) (2019-12-18)
+
+
+### Bug Fixes
+
+* prettier-ignore ([8f89ecb](https://github.com/fjc0k/yapi-to-typescript/commit/8f89ecb))
+* 请求文件支持 .jsx、.tsx 后缀 ([0738605](https://github.com/fjc0k/yapi-to-typescript/commit/0738605))
+
+
+### Features
+
+* 使用 prettier 美化生成的接口文件 ([a3fe676](https://github.com/fjc0k/yapi-to-typescript/commit/a3fe676))
+
+
+
 <a name="1.19.2"></a>
 ## [1.19.2](https://github.com/fjc0k/yapi-to-typescript/compare/v1.19.1...v1.19.2) (2019-12-12)
 

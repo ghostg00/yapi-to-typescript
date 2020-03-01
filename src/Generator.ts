@@ -1,11 +1,12 @@
 import * as changeCase from 'change-case'
+import dayjs from 'dayjs'
 import fs from 'fs-extra'
 import JSON5 from 'json5'
 import path from 'path'
+import prettier from 'prettier'
 import request from 'request-promise-native'
 import {castArray, dedent, isArray, isEmpty, isFunction, omit} from 'vtils'
 import {CategoryList, Config, ExtendedInterface, Interface, InterfaceList, Method, PropDefinition, RequestBodyType, RequestFormItemType, Required, ResponseBodyType, ServerConfig, SyntheticalConfig} from './types'
-import {formatDate} from '@vtils/date'
 import {getNormalizedRelativePath, jsonSchemaStringToJsonSchema, jsonSchemaToType, jsonToJsonSchema, mockjsTemplateToJsonSchema, propDefinitionsToJsonSchema, throwError} from './utils'
 import {JSONSchema4} from 'json-schema'
 
@@ -13,7 +14,8 @@ interface OutputFileList {
   [outputFilePath: string]: {
     syntheticalConfig: SyntheticalConfig,
     content: string[],
-    requestFilePath: string,
+    requestFunctionFilePath: string,
+    requestHookMakerFilePath: string,
   },
 }
 
@@ -101,7 +103,7 @@ export class Generator {
                           outputFileList[outputFilePath] = {
                             syntheticalConfig,
                             content: [],
-                            requestFilePath: (
+                            requestFunctionFilePath: (
                               syntheticalConfig.requestFunctionFilePath
                                 ? path.resolve(
                                   this.options.cwd,
@@ -111,6 +113,21 @@ export class Generator {
                                   path.dirname(outputFilePath),
                                   'request.ts',
                                 )
+                            ),
+                            requestHookMakerFilePath: (
+                              syntheticalConfig.reactHooks && syntheticalConfig.reactHooks.enabled
+                                ? (
+                                  syntheticalConfig.reactHooks.requestHookMakerFilePath
+                                    ? path.resolve(
+                                      this.options.cwd,
+                                      syntheticalConfig.reactHooks.requestHookMakerFilePath,
+                                    )
+                                    : path.join(
+                                      path.dirname(outputFilePath),
+                                      'makeRequestHook.ts',
+                                    )
+                                )
+                                : ''
                             ),
                           }
                         }
@@ -132,98 +149,164 @@ export class Generator {
   async write(outputFileList: OutputFileList) {
     return Promise.all(
       Object.keys(outputFileList).map(async outputFilePath => {
-        const {content, requestFilePath, syntheticalConfig} = outputFileList[outputFilePath]
+        const {content, requestFunctionFilePath, requestHookMakerFilePath, syntheticalConfig} = outputFileList[outputFilePath]
 
-        // 若非 typesOnly 模式且 request 文件不存在，则写入 request 文件
-        if (!syntheticalConfig.typesOnly && !(await fs.pathExists(requestFilePath))) {
-          await fs.outputFile(
-            requestFilePath,
-            dedent`
-              import { RequestFunction } from 'yapi-to-typescript'
+        if (!syntheticalConfig.typesOnly) {
+          if (!(await fs.pathExists(requestFunctionFilePath))) {
+            await fs.outputFile(
+              requestFunctionFilePath,
+              dedent`
+                import { RequestFunctionParams } from 'yapi-to-typescript'
 
-              /** 是否是生产环境 */
-              const isProd = false
+                export interface RequestOptions {
+                  /**
+                   * 使用的服务器。
+                   *
+                   * - \`prod\`: 生产服务器
+                   * - \`dev\`: 测试服务器
+                   * - \`mock\`: 模拟服务器
+                   *
+                   * @default prod
+                   */
+                  server?: 'prod' | 'dev' | 'mock',
+                }
 
-              /**
-               * 请求函数。
-               *
-               * **注意**：若 dataKey 不为空，取得接口返回值后，应类似这样返回结果：
-               *
-               * \`\`\`js
-               * return dataKey ? (response[dataKey] || response) : response
-               * \`\`\`
-               */
-              const request: RequestFunction = ({
-                /** 接口 Mock 地址，结尾无 \`/\` */
-                mockUrl,
-                /** 接口测试环境地址，结尾无 \`/\` */
-                devUrl,
-                /** 接口生产环境地址，结尾无 \`/\` */
-                prodUrl,
-                /** 接口路径，以 \`/\` 开头 */
-                path,
-                /** 请求方法 */
-                method,
-                /** 请求数据类型 */
-                requestBodyType,
-                /** 返回数据类型 */
-                responseBodyType,
-                /** 接口返回值中数据所在的键 */
-                dataKey,
-                /** 请求数据，不含文件数据 */
-                data,
-                /** 请求文件数据 */
-                fileData
-              }): Promise<any> => {
-                return new Promise((resolve, reject) => {
-                  /** 请求地址 */
-                  const url = \`\${isProd ? prodUrl : mockUrl}\${path}\`
+                export default function request<TResponseData>(
+                  payload: RequestFunctionParams,
+                  options: RequestOptions = {
+                    server: 'prod',
+                  },
+                ): Promise<TResponseData> {
+                  return new Promise<TResponseData>((resolve, reject) => {
+                    // 基本地址
+                    const baseUrl = options.server === 'mock'
+                      ? payload.mockUrl
+                      : options.server === 'dev'
+                        ? payload.devUrl
+                        : payload.prodUrl
 
-                  /** 是否含有文件数据 */
-                  const hasFileData = Object.keys(fileData).length > 0
+                    // 请求地址
+                    const url = \`\${baseUrl}\${payload.path}\`
 
-                  // 在这里实现请求逻辑
-                })
-              }
+                    // 具体请求逻辑
+                  })
+                }
+              `,
+            )
+          }
+          if (syntheticalConfig.reactHooks && syntheticalConfig.reactHooks.enabled && !(await fs.pathExists(requestHookMakerFilePath))) {
+            await fs.outputFile(
+              requestHookMakerFilePath,
+              dedent`
+                import { useState, useEffect } from 'react'
+                import { RequestConfig } from 'yapi-to-typescript'
+                import { Request } from ${JSON.stringify(getNormalizedRelativePath(requestHookMakerFilePath, outputFilePath))}
+                import baseRequest from ${JSON.stringify(getNormalizedRelativePath(requestHookMakerFilePath, requestFunctionFilePath))}
 
-              export default request
-            `,
-          )
+                export default function makeRequestHook<TRequestData, TRequestConfig extends RequestConfig, TRequestResult extends ReturnType<typeof baseRequest>>(request: Request<TRequestData, TRequestConfig, TRequestResult>) {
+                  type Data = TRequestResult extends Promise<infer R> ? R : TRequestResult
+                  return function useRequest(requestData: TRequestData) {
+                    // 一个简单的 Hook 实现，实际项目可结合其他库使用，比如：
+                    // @umijs/hooks 的 useRequest (https://github.com/umijs/hooks)
+                    // swr (https://github.com/zeit/swr)
+
+                    const [loading, setLoading] = useState(true)
+                    const [data, setData] = useState<Data>()
+
+                    useEffect(() => {
+                      request(requestData).then(data => {
+                        setLoading(false)
+                        setData(data as any)
+                      })
+                    }, [JSON.stringify(requestData)])
+
+                    return {
+                      loading,
+                      data,
+                    }
+                  }
+                }
+              `,
+            )
+          }
         }
 
         // 始终写入主文件
-        const requestFileRelativePath = getNormalizedRelativePath(
-          path.dirname(outputFilePath),
-          requestFilePath,
-        )
-        const requestFileRelativePathWithoutExt = requestFileRelativePath.replace(
-          /\.(ts|js)$/i,
-          '',
-        )
-        await fs.outputFile(
-          outputFilePath,
-          dedent`
-            /* tslint:disable */
-            /* eslint-disable */
-            /* prettier-ignore */
+        const rawOutputContent = dedent`
+          /* tslint:disable */
+          /* eslint-disable */
 
-            /* 该文件由 yapi-to-typescript 自动生成，请勿直接修改！！！ */
+          /* 该文件由 yapi-to-typescript 自动生成，请勿直接修改！！！ */
 
-            ${syntheticalConfig.typesOnly ? content.join('\n\n').trim() : dedent`
+          ${syntheticalConfig.typesOnly ? content.join('\n\n').trim() : dedent`
+            // @ts-ignore
+            // prettier-ignore
+            import { Method, RequestBodyType, ResponseBodyType, RequestConfig, RequestFunctionRestArgs, FileData, prepare } from 'yapi-to-typescript'
+            // @ts-ignore
+            import request from ${JSON.stringify(getNormalizedRelativePath(outputFilePath, requestFunctionFilePath))}
+            ${!syntheticalConfig.reactHooks || !syntheticalConfig.reactHooks.enabled ? '' : dedent`
               // @ts-ignore
-              import { Method, RequestBodyType, ResponseBodyType, RequestConfig, FileData, prepare } from 'yapi-to-typescript'
-              ${!syntheticalConfig.reactHooks || !syntheticalConfig.reactHooks.enable ? '' : dedent`
-                // @ts-ignore
-                import { createApiHook } from 'yapi-to-typescript'
-                // @ts-ignore
-                import { useState, useEffect } from '${syntheticalConfig.reactHooks.pragma || 'react'}'
-              `}
-              import request from ${JSON.stringify(requestFileRelativePathWithoutExt)}
-
-              ${content.join('\n\n').trim()}
+              import makeRequestHook from ${JSON.stringify(getNormalizedRelativePath(outputFilePath, requestHookMakerFilePath))}
             `}
-          `,
-        )
+
+            // makeRequest
+            function makeRequestRequired<TReqeustData, TResponseData, TRequestConfig extends RequestConfig>(requestConfig: TRequestConfig) {
+              const req = function (requestData: TReqeustData, ...args: RequestFunctionRestArgs<typeof request>) {
+                return request<TResponseData>(prepare(requestConfig, requestData), ...args)
+              }
+              req.requestConfig = requestConfig
+              return req
+            }
+            function makeRequestOptional<TReqeustData, TResponseData, TRequestConfig extends RequestConfig>(requestConfig: TRequestConfig) {
+              const req = function (requestData?: TReqeustData, ...args: RequestFunctionRestArgs<typeof request>) {
+                return request<TResponseData>(prepare(requestConfig, requestData), ...args)
+              }
+              req.requestConfig = requestConfig
+              return req
+            }
+            function makeRequest<TReqeustData, TResponseData, TRequestConfig extends RequestConfig>(requestConfig: TRequestConfig) {
+              const optional = makeRequestOptional<TReqeustData, TResponseData, TRequestConfig>(requestConfig)
+              const required = makeRequestRequired<TReqeustData, TResponseData, TRequestConfig>(requestConfig)
+              return (
+                  requestConfig.requestDataOptional
+                    ? optional
+                    : required
+                ) as (
+                  TRequestConfig['requestDataOptional'] extends true
+                    ? typeof optional
+                    : typeof required
+                )
+            }
+
+            // Request
+            export type Request<TReqeustData, TRequestConfig extends RequestConfig, TRequestResult> = (
+              TRequestConfig['requestDataOptional'] extends true
+                ? (requestData?: TReqeustData, ...args: RequestFunctionRestArgs<typeof request>) => TRequestResult
+                : (requestData: TReqeustData, ...args: RequestFunctionRestArgs<typeof request>) => TRequestResult
+            ) & {
+              requestConfig: TRequestConfig
+            }
+
+            ${content.join('\n\n').trim()}
+          `}
+        `
+        // ref: https://prettier.io/docs/en/options.html
+        const prettyOutputContent = prettier.format(rawOutputContent, {
+          parser: 'typescript',
+          printWidth: 120,
+          tabWidth: 2,
+          singleQuote: true,
+          semi: false,
+          trailingComma: 'all',
+          bracketSpacing: false,
+          endOfLine: 'lf',
+        })
+        const outputContent = `${dedent`
+          /* prettier-ignore-start */
+          ${prettyOutputContent}
+          /* prettier-ignore-end */
+        `}\n`
+        await fs.outputFile(outputFilePath, outputContent)
       }),
     )
   }
@@ -288,6 +371,7 @@ export class Generator {
           comment: item.desc,
         })),
       )
+      /* istanbul ignore else */
       if (jsonSchema) {
         jsonSchema.properties = {
           ...jsonSchema.properties,
@@ -353,6 +437,7 @@ export class Generator {
         return `export type ${typeName} = any`
     }
 
+    /* istanbul ignore if */
     if (dataKey && jsonSchema && jsonSchema.properties && jsonSchema.properties[dataKey]) {
       jsonSchema = jsonSchema.properties[dataKey]
     }
@@ -434,13 +519,13 @@ export class Generator {
         const env = projectInfo.env.find(
           e => e.name === devEnvName,
         )
-        return env && env.domain || ''
+        return env && env.domain /* istanbul ignore next */ || ''
       },
       getProdUrl: (prodEnvName: string) => {
         const env = projectInfo.env.find(
           e => e.name === prodEnvName,
         )
-        return env && env.domain || ''
+        return env && env.domain /* istanbul ignore next */ || ''
       },
     }
   }
@@ -456,7 +541,10 @@ export class Generator {
         extendedInterfaceInfo,
         changeCase,
       )
+      /* istanbul ignore next */
       : changeCase.camelCase(interfaceInfo.parsedPath.name)
+    const requestConfigName = changeCase.camelCase(`${requestFunctionName}RequestConfig`)
+    const requestConfigTypeName = changeCase.pascalCase(requestConfigName)
     const requestDataTypeName = isFunction(syntheticalConfig.getRequestDataTypeName)
       ? await syntheticalConfig.getRequestDataTypeName(
         extendedInterfaceInfo,
@@ -479,26 +567,20 @@ export class Generator {
       dataKey: syntheticalConfig.dataKey,
     })
     const isRequestDataOptional = /(\{\}|any)$/s.test(requestDataType)
-
-    let autoApiHookName!: string
-    let manualApiHookName!: string
-    if (syntheticalConfig.reactHooks && syntheticalConfig.reactHooks.enable) {
-      autoApiHookName = isFunction(syntheticalConfig.reactHooks.getAutoApiHookName)
-        ? await syntheticalConfig.reactHooks.getAutoApiHookName(
-          extendedInterfaceInfo,
-          changeCase,
-        )
-        : `useAutoApi${changeCase.pascalCase(requestFunctionName)}`
-      manualApiHookName = isFunction(syntheticalConfig.reactHooks.getManualApiHookName)
-        ? await syntheticalConfig.reactHooks.getManualApiHookName(
-          extendedInterfaceInfo,
-          changeCase,
-        )
-        : `useManualApi${changeCase.pascalCase(requestFunctionName)}`
-    }
+    const requestHookName = syntheticalConfig.reactHooks && syntheticalConfig.reactHooks.enabled
+      ? (
+        isFunction(syntheticalConfig.reactHooks.getRequestHookName)
+          /* istanbul ignore next */
+          ? await syntheticalConfig.reactHooks.getRequestHookName(
+            extendedInterfaceInfo,
+            changeCase,
+          )
+          : `use${changeCase.pascalCase(requestFunctionName)}`
+      )
+      : ''
 
     // 支持路径参数
-    const paramNames = (interfaceInfo.req_params || []).map(item => item.name)
+    const paramNames = (interfaceInfo.req_params /* istanbul ignore next */ || []).map(item => item.name)
     const paramNamesLiteral = JSON.stringify(paramNames)
     const paramNameType = paramNames.length === 0 ? 'string' : `'${paramNames.join('\' | \'')}'`
 
@@ -529,7 +611,8 @@ export class Generator {
         label: '更新时间',
         value: process.env.JEST_WORKER_ID // 测试时使用 unix 时间戳
           ? String(interfaceInfo.up_time)
-          : `\`${formatDate(interfaceInfo.up_time, 'YYYY-MM-DD HH:mm:ss')}\``,
+          /* istanbul ignore next */
+          : `\`${dayjs(interfaceInfo.up_time * 1000).format('YYYY-MM-DD HH:mm:ss')}\``,
       },
     ]
     const interfaceExtraComments: string = interfaceSummary
@@ -554,62 +637,52 @@ export class Generator {
 
       ${syntheticalConfig.typesOnly ? '' : dedent`
         /**
-         * 接口 ${interfaceTitle} 的 **请求函数**
+         * 接口 ${interfaceTitle} 的 **请求配置的类型**
          *
          ${interfaceExtraComments}
-         */
-        export function ${requestFunctionName}(requestData${isRequestDataOptional ? '?' : ''}: ${requestDataTypeName}): Promise<${responseDataTypeName}> {
-          return request(prepare(${requestFunctionName}.requestConfig, requestData))
-        }
-
-        /**
-         * 接口 ${interfaceTitle} 的 **请求配置**
-         *
-         ${interfaceExtraComments}
-         */
-        ${requestFunctionName}.requestConfig = Object.freeze({
-          mockUrl: mockUrl${categoryUID},
-          devUrl: devUrl${categoryUID},
-          prodUrl: prodUrl${categoryUID},
-          path: ${JSON.stringify(interfaceInfo.path)},
-          method: Method.${interfaceInfo.method},
-          requestBodyType: RequestBodyType.${interfaceInfo.method === Method.GET ? RequestBodyType.query : interfaceInfo.req_body_type || RequestBodyType.none},
-          responseBodyType: ResponseBodyType.${interfaceInfo.res_body_type},
-          dataKey: dataKey${categoryUID},
-          paramNames: ${paramNamesLiteral},
-        } as RequestConfig<
+        */
+        type ${requestConfigTypeName} = Readonly<RequestConfig<
           ${JSON.stringify(syntheticalConfig.mockUrl)},
           ${JSON.stringify(syntheticalConfig.devUrl)},
           ${JSON.stringify(syntheticalConfig.prodUrl)},
           ${JSON.stringify(interfaceInfo.path)},
           ${JSON.stringify(syntheticalConfig.dataKey)},
-          ${paramNameType}
-        >)
+          ${paramNameType},
+          ${JSON.stringify(isRequestDataOptional)}
+        >>
 
-        ${(!syntheticalConfig.reactHooks || !syntheticalConfig.reactHooks.enable) ? '' : dedent`
+        /**
+         * 接口 ${interfaceTitle} 的 **请求配置**
+         *
+         ${interfaceExtraComments}
+        */
+        const ${requestConfigName}: ${requestConfigTypeName} = {
+          mockUrl: mockUrl${categoryUID},
+          devUrl: devUrl${categoryUID},
+          prodUrl: prodUrl${categoryUID},
+          path: ${JSON.stringify(interfaceInfo.path)},
+          method: Method.${interfaceInfo.method},
+          requestBodyType: RequestBodyType.${interfaceInfo.method === Method.GET ? RequestBodyType.query : interfaceInfo.req_body_type /* istanbul ignore next */ || RequestBodyType.none},
+          responseBodyType: ResponseBodyType.${interfaceInfo.res_body_type},
+          dataKey: dataKey${categoryUID},
+          paramNames: ${paramNamesLiteral},
+          requestDataOptional: ${JSON.stringify(isRequestDataOptional)},
+        }
+
+        /**
+         * 接口 ${interfaceTitle} 的 **请求函数**
+         *
+         ${interfaceExtraComments}
+         */
+        export const ${requestFunctionName} = makeRequest<${requestDataTypeName}, ${responseDataTypeName}, ${requestConfigTypeName}>(${requestConfigName})
+
+        ${(!syntheticalConfig.reactHooks || !syntheticalConfig.reactHooks.enabled) ? '' : dedent`
           /**
-           * 接口 ${interfaceTitle} 的 **自动触发 API 的 React Hook**
+           * 接口 ${interfaceTitle} 的 **React Hook**
            *
            ${interfaceExtraComments}
            */
-          export const ${autoApiHookName} = createApiHook<typeof ${requestFunctionName}, ${isRequestDataOptional}>({
-            useState: useState,
-            useEffect: useEffect,
-            requestFunction: ${requestFunctionName},
-            autoTrigger: true,
-          })
-
-          /**
-           * 接口 ${interfaceTitle} 的 **手动触发 API 的 React Hook**
-           *
-           ${interfaceExtraComments}
-           */
-          export const ${manualApiHookName} = createApiHook<typeof ${requestFunctionName}, ${isRequestDataOptional}>({
-            useState: useState,
-            useEffect: useEffect,
-            requestFunction: ${requestFunctionName},
-            autoTrigger: false,
-          })
+          export const ${requestHookName} = makeRequestHook<${requestDataTypeName}, ${requestConfigTypeName}, ReturnType<typeof ${requestFunctionName}>>(${requestFunctionName})
         `}
       `}
     `

@@ -35,10 +35,14 @@ export function toUnixPath(path: string) {
  * @returns 相对路径
  */
 export function getNormalizedRelativePath(from: string, to: string) {
-  return toUnixPath(path.relative(from, to))
+  return toUnixPath(path.relative(path.dirname(from), to))
     .replace(
       /^(?=[^.])/,
       './',
+    )
+    .replace(
+      /\.(ts|js)x?$/i,
+      '',
     )
 }
 
@@ -49,11 +53,16 @@ export function getNormalizedRelativePath(from: string, to: string) {
  * @returns 处理后的 JSONSchema
  */
 export function processJsonSchema<T extends JSONSchema4>(jsonSchema: T): T {
+  /* istanbul ignore if */
   if (!isObject(jsonSchema)) return jsonSchema
 
   // 去除 title 和 id，防止 json-schema-to-typescript 提取它们作为接口名
   delete jsonSchema.title
   delete jsonSchema.id
+
+  // 忽略数组长度限制
+  delete jsonSchema.minItems
+  delete jsonSchema.maxItems
 
   // 将 additionalProperties 设为 false
   jsonSchema.additionalProperties = false
@@ -142,7 +151,7 @@ export function propDefinitionsToJsonSchema(propDefinitions: PropDefinitions): J
         res[prop.name] = {
           type: prop.type,
           description: prop.comment,
-          ...(prop.type === 'file' ? {tsType: FileData.name} : {}),
+          ...(prop.type === 'file' as any ? {tsType: FileData.name} : {}),
         }
         return res
       },

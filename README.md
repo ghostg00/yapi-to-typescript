@@ -6,9 +6,28 @@
 
 根据 [YApi](https://github.com/YMFE/yapi) 的接口定义生成 [TypeScript](https://github.com/Microsoft/TypeScript) 的接口类型及其请求函数代码。
 
+<!-- TOC depthFrom:2 -->
+
+- [预览](#预览)
+- [特性](#特性)
+- [环境要求](#环境要求)
+- [安装](#安装)
+- [使用](#使用)
+  - [生成配置文件](#生成配置文件)
+  - [修改配置文件](#修改配置文件)
+  - [生成代码](#生成代码)
+- [配置](#配置)
+  - [概论](#概论)
+  - [配置项](#配置项)
+- [许可](#许可)
+
+<!-- /TOC -->
+
+## 预览
+
 <!-- <img src="./assets/preview.png" width="700" /> -->
 
-<img src="https://raw.githubusercontent.com/fjc0k/yapi-to-typescript/master/assets/preview.png?v=20191210" width="700" />
+<img src="https://raw.githubusercontent.com/fjc0k/yapi-to-typescript/master/assets/preview.png?v=20190221" width="700" />
 
 
 ## 特性
@@ -59,7 +78,7 @@ npx ytt init
 
 打开当前目录下的 `ytt.config.ts` 配置文件，直接修改即可。[查看配置说明](http://fjc0k.github.io/yapi-to-typescript/interfaces/serverconfig.html)
 
-### 生成 TypeScript 的接口类型及其请求函数代码
+### 生成代码
 
 直接执行命令 `ytt` 即可抓取 `YApi` 的接口定义并生成相应的 `TypeScript` 代码：
 
@@ -98,9 +117,9 @@ type Config = Servers
 
 ### 配置项
 
-具体配置项见：[API 文档](http://fjc0k.github.io/yapi-to-typescript/interfaces/serverconfig.html)。
+具体配置项见：[API 文档](http://fjc0k.github.io/yapi-to-typescript/v3/interfaces/serverconfig.html)。
 
 
 ## 许可
 
-MIT @ Jay Fong
+MIT (c) Jay Fong
