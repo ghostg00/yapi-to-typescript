@@ -6,7 +6,7 @@ Thumbs.db
 .tmp*
 *_cache
 /api
-/lib
+#/lib
 /docs
 /coverage
 ytt.config.*
