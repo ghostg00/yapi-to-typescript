@@ -1,7 +1,7 @@
-let exportCount: number = 0
+let exportCount = 0
 
-const mockData: Record<string, any> = {
-  '/api/plugin/export': [
+const mockData: Record<string, () => any> = {
+  '/api/plugin/export': () => [
     {
       index: 0,
       name: 'test',
@@ -44,7 +44,8 @@ const mockData: Record<string, any> = {
           desc: '',
           res_body: '{"type":"object","title":"empty object","properties":{}}',
           req_body_type: 'json',
-          req_body_other: '{"type":"object","title":"empty object","properties":{"id":{"type":"string","description":"ID"}},"required":["id"]}',
+          req_body_other:
+            '{"type":"object","title":"empty object","properties":{"id":{"type":"string","description":"ID"}},"required":["id"]}',
           uid: 11,
           add_time: 1568765163,
           up_time: 1568765163,
@@ -91,7 +92,8 @@ const mockData: Record<string, any> = {
           ],
           markdown: '',
           desc: '',
-          res_body: '{"type":"object","title":"empty object","properties":{"result":{"type":"number","description":"结果"}},"required":["result"]}',
+          res_body:
+            '{"type":"object","title":"empty object","properties":{"result":{"type":"number","description":"结果"}},"required":["result"]}',
           uid: 11,
           add_time: 1568765164,
           up_time: 1568765164,
@@ -123,7 +125,8 @@ const mockData: Record<string, any> = {
           req_body_form: [],
           markdown: '',
           desc: '',
-          res_body: '{\n    /** 注释 */\n    "id": 1,\n    "age": "@float",\n    "name": "@name"\n}',
+          res_body:
+            '{\n    /** 注释 */\n    "id": 1,\n    "age": "@float",\n    "name": "@name"\n}',
           uid: 11,
           add_time: 1568765164,
           up_time: 1568765164,
@@ -154,20 +157,21 @@ const mockData: Record<string, any> = {
           req_headers: [
             {
               required: '1',
-              _id: '5cbdd32f93bc6574a2de33e6',
+              _id: '5f30d27c836a360dd0cfa97b',
               name: 'Content-Type',
               value: 'application/json',
             },
           ],
           req_body_form: [],
-          req_body_other: '{\n   "id": 1,\n   "name": "方剑成",\n   "likes": [\n      "photo",\n      2\n   ]\n}',
+          req_body_other:
+            '{\n  "id": 1,\n  "name": "方剑成",\n  "likes": [\n    "photo",\n    2\n  ],\n  // 嵌套的\n  "nest": {\n      "x": 1,\n      "y": {"z":"2"}\n  }\n}',
           markdown: '',
           desc: '',
           res_body: '',
           req_body_type: 'json',
           uid: 11,
           add_time: 1568765164,
-          up_time: 1568765164,
+          up_time: 1597035132,
           __v: 0,
         },
         {
@@ -201,10 +205,13 @@ const mockData: Record<string, any> = {
             },
           ],
           req_query: [],
-          req_body_other: '{"type":"object","title":"empty object","properties":{"page":{"type":"number","description":"页码"},"limit":{"type":"number","description":"每页数量"},"keyword":{"type":"string","description":"关键词"}},"required":["page","limit"]}',
+          req_body_other:
+            '{"type":"object","title":"empty object","properties":{"page":{"type":"number","description":"页码"},"limit":{"type":"number","description":"每页数量"},"keyword":{"type":"string","description":"关键词"}},"required":["page","limit"]}',
           markdown: '**备注。。。**\n\n`额鹅鹅鹅`',
-          desc: '<p><strong>备注。。。</strong></p>\n<p><code data-backticks="1">额鹅鹅鹅</code></p>\n',
-          res_body: '{"type":"object","title":"empty object","properties":{"list":{"type":"array","items":{"type":"object","properties":{"name":{"type":"string","description":"姓名"}},"required":["name"]},"description":"列表"}},"required":["list"]}',
+          desc:
+            '<p><strong>备注。。。</strong></p>\n<p><code data-backticks="1">额鹅鹅鹅</code></p>\n',
+          res_body:
+            '{"type":"object","title":"empty object","properties":{"list":{"type":"array","items":{"type":"object","properties":{"name":{"type":"string","description":"姓名"}},"required":["name"]},"description":"列表"}},"required":["list"]}',
           req_body_type: 'json',
           uid: 11,
           add_time: 1568765164,
@@ -267,7 +274,8 @@ const mockData: Record<string, any> = {
           ],
           markdown: '',
           desc: '',
-          res_body: '{"type":"object","title":"empty object","properties":{"err":{"type":"number","description":"错误"},"msg":{"type":"string","description":"错误详情"},"data":{"type":"object","properties":{},"description":"数据"}},"required":["err","msg"]}',
+          res_body:
+            '{"type":"object","title":"empty object","properties":{"err":{"type":"number","description":"错误"},"msg":{"type":"string","description":"错误详情"},"data":{"type":"object","properties":{},"description":"数据"}},"required":["err","msg"]}',
           req_body_type: 'form',
           uid: 11,
           add_time: 1568765164,
@@ -330,7 +338,8 @@ const mockData: Record<string, any> = {
           ],
           markdown: '',
           desc: '',
-          res_body: '{"type":"object","title":"empty object","properties":{"err":{"type":"number","description":"错误"},"msg":{"type":"string","description":"错误详情"},"data":{"type":"object","properties":{"success":{"type":"boolean","description":"成功啦"}},"description":"数据","required":["success"]}},"required":["err","msg"]}',
+          res_body:
+            '{"type":"object","title":"empty object","properties":{"err":{"type":"number","description":"错误"},"msg":{"type":"string","description":"错误详情"},"data":{"type":"object","properties":{"success":{"type":"boolean","description":"成功啦"}},"description":"数据","required":["success"]}},"required":["err","msg"]}',
           req_body_type: 'form',
           uid: 11,
           add_time: 1568765165,
@@ -573,7 +582,8 @@ const mockData: Record<string, any> = {
             },
           ],
           req_body_form: [],
-          req_body_other: '{"type":"object","title":"empty object","properties":{"K1":{"type":"string","description":"键1"},"K2":{"type":"number","description":"键2"}},"required":["K1"]}',
+          req_body_other:
+            '{"type":"object","title":"empty object","properties":{"K1":{"type":"string","description":"键1"},"K2":{"type":"number","description":"键2"}},"required":["K1"]}',
           markdown: '',
           desc: '',
           res_body: '',
@@ -636,10 +646,7 @@ const mockData: Record<string, any> = {
           res_body_is_json_schema: true,
           api_opened: false,
           index: 0,
-          tag: [
-            '2期',
-            '梦想城',
-          ],
+          tag: ['2期', '梦想城'],
           _id: 445,
           method: 'GET',
           catid: 87,
@@ -653,7 +660,8 @@ const mockData: Record<string, any> = {
           req_body_form: [],
           markdown: '',
           desc: '',
-          res_body: '{"type":"object","title":"empty object","properties":{"msg":{"type":"string"}},"required":["msg"]}',
+          res_body:
+            '{"type":"object","title":"empty object","properties":{"msg":{"type":"string"}},"required":["msg"]}',
           uid: 11,
           add_time: 1568765166,
           up_time: 1575945946,
@@ -696,14 +704,246 @@ const mockData: Record<string, any> = {
           req_headers: [],
           req_body_form: [],
           __v: 0,
-          desc: '<p><a href="https://github.com/fjc0k/yapi-to-typescript/issues/17">https://github.com/fjc0k/yapi-to-typescript/issues/17</a></p>\n',
-          markdown: '[https://github.com/fjc0k/yapi-to-typescript/issues/17](https://github.com/fjc0k/yapi-to-typescript/issues/17)',
+          desc:
+            '<p><a href="https://github.com/fjc0k/yapi-to-typescript/issues/17">https://github.com/fjc0k/yapi-to-typescript/issues/17</a></p>\n',
+          markdown:
+            '[https://github.com/fjc0k/yapi-to-typescript/issues/17](https://github.com/fjc0k/yapi-to-typescript/issues/17)',
           res_body: '{"type":"object","title":"empty object","properties":{}}',
+        },
+        {
+          query_path: {
+            path: '/28/get',
+            params: [],
+          },
+          edit_uid: 0,
+          status: 'undone',
+          type: 'static',
+          req_body_is_json_schema: true,
+          res_body_is_json_schema: true,
+          api_opened: false,
+          index: 0,
+          tag: [],
+          _id: 972,
+          method: 'GET',
+          catid: 151,
+          title: '28: 字段名称含空格 GET',
+          path: '/28/get',
+          project_id: 27,
+          req_params: [],
+          res_body_type: 'json',
+          uid: 11,
+          add_time: 1589249514,
+          up_time: 1589249547,
+          req_query: [
+            {
+              required: '1',
+              _id: '5eba060b3a90e2c457f435a8',
+              name: '   a',
+              desc: '',
+            },
+            {
+              required: '1',
+              _id: '5eba060b3a90e2a675f435a7',
+              name: ' b',
+              example: '',
+              desc: '',
+            },
+            {
+              required: '1',
+              _id: '5eba060b3a90e23035f435a6',
+              name: 'c ',
+              example: '',
+              desc: '',
+            },
+            {
+              required: '1',
+              _id: '5eba060b3a90e24fc3f435a5',
+              name: '    d    e   ',
+              example: '',
+              desc: '',
+            },
+          ],
+          req_headers: [],
+          req_body_form: [],
+          __v: 0,
+          desc: '',
+          markdown: '',
+          res_body: '{"type":"object","title":"title","properties":{}}',
+        },
+        {
+          query_path: {
+            path: '/28/post/form',
+            params: [],
+          },
+          edit_uid: 0,
+          status: 'undone',
+          type: 'static',
+          req_body_is_json_schema: true,
+          res_body_is_json_schema: true,
+          api_opened: false,
+          index: 0,
+          tag: [],
+          _id: 978,
+          method: 'POST',
+          catid: 151,
+          title: '28: 字段名称含空格 POST form',
+          path: '/28/post/form',
+          project_id: 27,
+          req_params: [],
+          res_body_type: 'json',
+          req_query: [
+            {
+              required: '1',
+              _id: '5eba069e3a90e203f9f435b9',
+              name: '   a',
+              desc: '',
+            },
+            {
+              required: '1',
+              _id: '5eba069e3a90e2235af435b8',
+              name: ' b',
+              example: '',
+              desc: '',
+            },
+            {
+              required: '1',
+              _id: '5eba069e3a90e24aabf435b7',
+              name: 'c ',
+              example: '',
+              desc: '',
+            },
+            {
+              required: '1',
+              _id: '5eba069e3a90e2c36ef435b6',
+              name: '    d    e   ',
+              example: '',
+              desc: '',
+            },
+          ],
+          req_headers: [
+            {
+              required: '1',
+              _id: '5eba069e3a90e2ea69f435ba',
+              name: 'Content-Type',
+              value: 'application/x-www-form-urlencoded',
+            },
+          ],
+          req_body_form: [
+            {
+              required: '1',
+              _id: '5eba069e3a90e22bd5f435be',
+              name: 'a ',
+              type: 'text',
+            },
+            {
+              required: '1',
+              _id: '5eba069e3a90e27bdef435bd',
+              name: '  b  ',
+              type: 'text',
+              example: '',
+              desc: '',
+            },
+            {
+              required: '1',
+              _id: '5eba069e3a90e2697bf435bc',
+              name: ' c',
+              type: 'text',
+              example: '',
+              desc: '',
+            },
+            {
+              required: '1',
+              _id: '5eba069e3a90e2269ef435bb',
+              name: 'd   e  ',
+              type: 'text',
+              example: '',
+              desc: '',
+            },
+          ],
+          desc: '',
+          markdown: '',
+          res_body: '{"type":"object","title":"title","properties":{}}',
+          uid: 11,
+          add_time: 1589249571,
+          up_time: 1589249694,
+          __v: 0,
+          req_body_type: 'form',
+        },
+        {
+          query_path: {
+            path: '/28/post/json',
+            params: [],
+          },
+          edit_uid: 0,
+          status: 'undone',
+          type: 'static',
+          req_body_is_json_schema: true,
+          res_body_is_json_schema: true,
+          api_opened: false,
+          index: 0,
+          tag: [],
+          _id: 984,
+          method: 'POST',
+          catid: 151,
+          title: '28: 字段名称含空格 POST json',
+          path: '/28/post/json',
+          project_id: 27,
+          req_params: [],
+          res_body_type: 'json',
+          req_query: [
+            {
+              required: '1',
+              _id: '5eba07063a90e2a0aff435cb',
+              name: '   a',
+              desc: '',
+            },
+            {
+              required: '1',
+              _id: '5eba07063a90e25183f435ca',
+              name: ' b',
+              example: '',
+              desc: '',
+            },
+            {
+              required: '1',
+              _id: '5eba07063a90e22770f435c9',
+              name: 'c ',
+              example: '',
+              desc: '',
+            },
+            {
+              required: '1',
+              _id: '5eba07063a90e2377cf435c8',
+              name: '    d    e   ',
+              example: '',
+              desc: '',
+            },
+          ],
+          req_headers: [
+            {
+              required: '1',
+              _id: '5eba07063a90e29219f435cc',
+              name: 'Content-Type',
+              value: 'application/json',
+            },
+          ],
+          req_body_form: [],
+          desc: '',
+          markdown: '',
+          res_body:
+            '{"$schema":"http://json-schema.org/draft-04/schema#","type":"object","properties":{" a":{"type":"number"},"b  ":{"type":"string"},"c":{"type":"object","properties":{"d  ":{"type":"string"}}}}}',
+          req_body_type: 'json',
+          uid: 11,
+          add_time: 1589249698,
+          up_time: 1589249798,
+          __v: 0,
+          req_body_other:
+            '{"type":"object","title":"title","properties":{"  a":{"type":"string"},"b  ":{"type":"string"},"c   d ":{"type":"string"},"e":{"type":"object","properties":{"f ":{"type":"string"}},"required":["f "]}},"required":["  a","b  ","c   d ","e"]}',
         },
       ],
     },
   ],
-  '/api/interface/getCatMenu': {
+  '/api/interface/getCatMenu': () => ({
     errcode: 0,
     errmsg: '成功！',
     data: [
@@ -752,8 +992,8 @@ const mockData: Record<string, any> = {
         __v: 0,
       },
     ],
-  },
-  '/api/project/get': {
+  }),
+  '/api/project/get': () => ({
     errcode: 0,
     errmsg: '成功！',
     data: {
@@ -793,16 +1033,30 @@ const mockData: Record<string, any> = {
       cat: [],
       role: 'admin',
     },
-  },
+  }),
 }
 
-const request = {
-  get: (url: string) => {
+const got = {
+  get: (
+    url: string,
+    { searchParams: { token } }: { searchParams: { token?: string } } = {
+      searchParams: {},
+    },
+  ) => {
     const path = Object.keys(mockData).find(path => url.endsWith(path))
+    const mockRes = { body: (path && mockData[path]()) || {} }
     if (path!.endsWith('/api/plugin/export')) {
       exportCount++
+      ;(mockRes.body as any[]).forEach(group => {
+        ;(group.list as any[]).forEach(item => {
+          item.path = `/__${token}__${item.path}`
+        })
+      })
     }
-    return path && mockData[path]
+    if (path!.endsWith('/api/project/get') && token === 'with-basepath') {
+      mockRes.body.data.basepath = '/i-am-basepath'
+    }
+    return mockRes
   },
   resetExportCount() {
     exportCount = 0
@@ -812,4 +1066,4 @@ const request = {
   },
 }
 
-module.exports = request
+module.exports = got

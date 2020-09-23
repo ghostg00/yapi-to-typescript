@@ -2,9 +2,9 @@
   <img src="https://raw.githubusercontent.com/fjc0k/yapi-to-typescript/master/assets/logo.png" width="150" />
 </p>
 
-# YApi to TypeScript [![Build Status](https://travis-ci.org/fjc0k/yapi-to-typescript.svg?branch=master)](https://travis-ci.org/fjc0k/yapi-to-typescript) [![codecov](https://codecov.io/gh/fjc0k/yapi-to-typescript/branch/master/graph/badge.svg)](https://codecov.io/gh/fjc0k/yapi-to-typescript)
+# YApi to TypeScript ![Test](https://github.com/fjc0k/yapi-to-typescript/workflows/Test/badge.svg) [![codecov](https://codecov.io/gh/fjc0k/yapi-to-typescript/branch/master/graph/badge.svg)](https://codecov.io/gh/fjc0k/yapi-to-typescript)
 
-根据 [YApi](https://github.com/YMFE/yapi) 的接口定义生成 [TypeScript](https://github.com/Microsoft/TypeScript) 的接口类型及其请求函数代码。
+根据 [YApi](https://github.com/YMFE/yapi) 的接口定义生成 TypeScript/JavaScript 的接口类型及其请求函数代码。
 
 <!-- TOC depthFrom:2 -->
 
@@ -19,6 +19,7 @@
 - [配置](#配置)
   - [概论](#概论)
   - [配置项](#配置项)
+- [参与贡献](#参与贡献)
 - [许可](#许可)
 
 <!-- /TOC -->
@@ -29,7 +30,6 @@
 
 <img src="https://raw.githubusercontent.com/fjc0k/yapi-to-typescript/master/assets/preview.png?v=20190221" width="700" />
 
-
 ## 特性
 
 - 支持多服务器、多项目、多分类
@@ -39,13 +39,12 @@
 - 支持生成 React Hooks 的请求代码
 - 支持参数路径
 - 支持上传文件
-
+- 支持生成 JavaScript 代码
 
 ## 环境要求
 
-- `Node >= 8`
+- `Node >= 10.19.0`
 - `YApi >= 1.5.12`
-
 
 ## 安装
 
@@ -57,14 +56,13 @@ yarn add yapi-to-typescript
 npm i yapi-to-typescript --save
 ```
 
-
 ## 使用
 
-`yapi-to-typescript` 基于当前目录下的 `ytt.config.ts` 配置文件进行相关操作。
+`yapi-to-typescript` 基于当前目录下的 `ytt.config.{ts,js}` 配置文件进行相关操作。
 
 ### 生成配置文件
 
-使用命令 `ytt init` 可在当前目录自动创建配置文件 `ytt.config.ts`，如果配置文件已存在，将会询问你是否覆盖：
+使用命令 `ytt init` 可在当前目录自动创建配置文件 `ytt.config.{ts,js}`，如果配置文件已存在，将会询问你是否覆盖：
 
 ```bash
 # yarn
@@ -76,11 +74,11 @@ npx ytt init
 
 ### 修改配置文件
 
-打开当前目录下的 `ytt.config.ts` 配置文件，直接修改即可。[查看配置说明](http://fjc0k.github.io/yapi-to-typescript/interfaces/serverconfig.html)
+打开当前目录下的 `ytt.config.{ts,js}` 配置文件，直接修改即可。[查看配置说明](http://fjc0k.github.io/yapi-to-typescript/interfaces/serverconfig.html)
 
 ### 生成代码
 
-直接执行命令 `ytt` 即可抓取 `YApi` 的接口定义并生成相应的 `TypeScript` 代码：
+直接执行命令 `ytt` 即可抓取 `YApi` 的接口定义并生成相应的 `TypeScript`/`JavaScript` 代码：
 
 ```bash
 # yarn
@@ -89,7 +87,6 @@ yarn ytt
 # 或者，npm
 npx ytt
 ```
-
 
 ## 配置
 
@@ -119,6 +116,12 @@ type Config = Servers
 
 具体配置项见：[API 文档](http://fjc0k.github.io/yapi-to-typescript/v3/interfaces/serverconfig.html)。
 
+## 参与贡献
+
+为避免无用功，功能新增或变更请提 issue 由维护者评估后再决定是否继续；功能修复以及经评估可行的功能新增或变更请提 PR。
+
+- 安装依赖：`yarn`
+- 运行测试：`yarn test`
 
 ## 许可
 
